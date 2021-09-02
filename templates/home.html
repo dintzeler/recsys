@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+  <form class="navbar-form" action="/search">
+    <div class="form-group" style="display:inline;">
+      <input type="text" class="form-control" placeholder="Search Papers" name="q" style="bg-color='gray'" maxlength="40">
+      <button class="input-group-addon" style="width: 40px"><i class="glyphicon glyphicon-search" title="Search"></i></button>
+    </div>
+  </form>
+
+ 
+  <button type="button" onclick="populate_ratings({{user_id}},'{{csrf_token}}')">Populate My Ratings</button>
+  
+<script>
+	function populate_ratings(user_id, csrf_token){
+         $.ajax({
+            type: 'POST',
+            url: '/populate_ratings/',
+            data: {"csrfmiddlewaretoken": csrf_token, "user_id": user_id},
+           	fail: function(){
+                console.log('log failed')
+            }
+        })};
+
+	
+</script>
+
+{% endblock %}

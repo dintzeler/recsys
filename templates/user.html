@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block content %}
+<script>
+	function get_sim_users(this_user, type) {
+	    min_overlap = 3
+		url = '/user/sim/' + this_user + '/' + type + '/?min=' + min_overlap
+	    $.getJSON(url, function(result) {
+			ul =  document.getElementById('sim_users_' + type)
+	        if (result.similarity != null &&
+	            Object.keys(result.similarity).length > 0) {
+	            for (var key in result.similarity){
+	                if (result.similarity.hasOwnProperty(key)) {
+	                    li = document.createElement('li')
+	                    a = document.createElement('a')
+	                    a.setAttribute('href', '/user/' + result.similarity[key][0])
+
+	                    sim = parseFloat(result.similarity[key][1])
+	                    a.innerHTML = result.similarity[key][0] + ':' + sim
+	                    li.appendChild(a)
+	                    ul.appendChild(li)
+	                }
+	            }
+	        } else {
+	            li = document.createElement('li')
+	            li.innerHTML = 'No similar users found, with min = ' + min_overlap
+	            ul.appendChild(li)
+	        }
+	    });
+	}
+
+	function collaborative_filtering(user_id){
+		url = '/user/cf/'+user_id+'/'
+		$.getJSON(url, function(result) {
+			ul =  document.getElementById('collaborative_filtering')
+			if ((result.data != null) && (result.data.length > 0)) {
+				result.data.forEach(function(element){
+					li = document.createElement('li')
+					a = document.createElement('a')
+					a.setAttribute('href','/'+element[0])
+					a.innerHTML = element[1]
+					li.appendChild(a)
+					ul.appendChild(li)
+
+				});
+			} else {
+				li = document.createElement('li')
+				li.innerHTML = 'There are no recommended items'
+				ul.appendChild(li)
+			}
+			
+
+		});
+	}
+
+	function baseline_recommender(user_id){
+		url = '/user/br/'+user_id+'/'
+		$.getJSON(url, function(result) {
+			ul =  document.getElementById('baseline_recommender')
+			if ((result.data != null) && (result.data.length > 0)) {
+				result.data.forEach(function(element){
+					li = document.createElement('li')
+					a = document.createElement('a')
+					a.setAttribute('href','/'+element[0])
+					a.innerHTML = element[1]
+					li.appendChild(a)
+					ul.appendChild(li)
+
+				});
+			} else {
+				li = document.createElement('li')
+				li.innerHTML = 'There are no recommended items'
+				ul.appendChild(li)
+			}
+			
+
+		});
+	}
+
+</script>
+
+<h2>Your rated Venues</h2>
+<ul>
+{%for value in ratings%}
+	<li>
+	<a href = "/{{value.id}}">{{value.raw}} : {{value.rating}}</a>
+	</li>
+{%endfor%}
+</ul>
+<h2>Users similar to {{user_id}}</h2>
+<div class="row">
+	<div class = "column">
+		<strong>Pearson similarity</strong>
+		<ul id="sim_users_pearson"></ul>
+		<script>
+			get_sim_users({{user_id}},'pearson')
+		</script>
+		<strong/>Cosine similarity</strong>
+		<ul id="sim_users_cosine"></ul>
+		<script>
+			get_sim_users({{user_id}},'cosine')
+		</script>	
+		<strong/>Euclidean similarity</strong>
+		<ul id="sim_users_euclidean"></ul>
+		<script>
+			get_sim_users({{user_id}},'euclidean')
+		</script>		
+<h2>Recommendations</h2>
+<div class="row">
+	<div class="column">
+		<strong>Collaborative filtering</strong>
+		<ul id="collaborative_filtering"></ul>
+		<script>
+			collaborative_filtering({{user_id}})
+		</script>
+<div class="row">
+	<div class="column">
+		<strong>Baseline Recommender</strong>
+		<ul id="baseline_recommender"></ul>
+		<script>
+			baseline_recommender({{user_id}})
+		</script>
+{% endblock %}

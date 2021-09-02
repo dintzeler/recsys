@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+{%if venue%}
+    <h2>{{venue}}</h2>
+{%endif%}
+
+{%for paper in papers%}
+	<p>{{paper}}
+	<a href="#" type="button" onclick="add_paper({{user_id}},'{{paper.paper_id}}','{{csrf_token}}')" class="btn btn-default">Add</a>
+	</p>
+{%endfor%}
+<script>
+	function add_paper(user_id, paper_id, csrf_token){
+
+         $.ajax({
+            type: 'POST',
+            url: '/log/',
+            data: {"csrfmiddlewaretoken": csrf_token, "user_id": user_id, "paper_id": paper_id},
+           	fail: function(){
+                console.log('log failed')
+            }
+        })};
+
+	
+</script>
+
+{% endblock %}
